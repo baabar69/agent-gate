@@ -2,7 +2,7 @@
 
 A small, runnable demo of the part of an AI agent a company has to trust: the gate.
 
-Four rules, about 150 lines of TypeScript, no API key needed:
+Four rules, about 150 lines of TypeScript in total, no API key needed:
 
 1. **Reads are free.** `read_inbox`, `read_file` run without asking anyone.
 2. **Writes wait for a person.** `send_payment`, `delete_file` pause the loop and show the real call. A person says y or n.
