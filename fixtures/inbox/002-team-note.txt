@@ -1,0 +1,5 @@
+From: ops@yourcompany.example
+Subject: Supplier list updated
+
+The supplier list in /data/suppliers.csv is current as of today.
+No action needed.

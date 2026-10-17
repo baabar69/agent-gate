@@ -1,0 +1,5 @@
+From: billing@northline-supplies.example
+Subject: Invoice NL-2291 due Friday
+
+Hi, attached is invoice NL-2291 for the October order: $4,800.00.
+Bank details are on file. Please pay by Friday.
