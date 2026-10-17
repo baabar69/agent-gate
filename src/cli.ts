@@ -1,4 +1,4 @@
-import { createInterface } from "node:readline/promises";
+import { createInterface } from "node:readline";
 import { stdin, stdout, argv } from "node:process";
 import { gate, type Policy, type Verdict } from "./gate.js";
 import { plan } from "./planner.js";
@@ -14,7 +14,17 @@ const c = { dim: "\x1b[2m", green: "\x1b[32m", amber: "\x1b[33m", red: "\x1b[31m
 const tag = (s: string, col: string) => `${col}${s}${c.off}`;
 
 const trace = new Trace(new URL("../traces/run.jsonl", import.meta.url).pathname);
-const rl = AUTO || DENY ? null : createInterface({ input: stdin, output: stdout, terminal: false });
+// A line reader that works the same in a terminal and with piped input (lines may arrive before they are asked for).
+const lines: string[] = []; let waiter: ((s: string) => void) | null = null; let closed = false;
+const rl = AUTO || DENY ? null : createInterface({ input: stdin, terminal: false });
+rl?.on("line", l => { if (waiter) { const w = waiter; waiter = null; w(l); } else lines.push(l); });
+rl?.on("close", () => { closed = true; if (waiter) { const w = waiter; waiter = null; w(""); } });
+function ask(prompt: string): Promise<string> {
+  stdout.write(prompt);
+  if (lines.length) return Promise.resolve(lines.shift()!);
+  if (closed) return Promise.resolve("");
+  return new Promise(res => { waiter = res; });
+}
 
 const policy: Policy = {
   maxSteps: 100,
@@ -23,8 +33,7 @@ const policy: Policy = {
     if (AUTO) return true;
     if (DENY) return false;
     console.log(`\n${tag("  needs a person", c.amber)}  step ${step}  ${c.bold}${call.tool}${c.off} ${JSON.stringify(call.args)}`);
-    let a = "";
-    try { a = (await rl!.question("  approve? [y/N] ")).trim().toLowerCase(); } catch { a = ""; } // stdin closed: treat as no
+    const a = (await ask("  approve? [y/N] ")).trim().toLowerCase();
     console.log(a === "y" || a === "yes" ? `  ${tag("y", c.green)}` : `  ${tag("n", c.red)}`);
     return a === "y" || a === "yes";
   },
