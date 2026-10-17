@@ -14,7 +14,7 @@ const c = { dim: "\x1b[2m", green: "\x1b[32m", amber: "\x1b[33m", red: "\x1b[31m
 const tag = (s: string, col: string) => `${col}${s}${c.off}`;
 
 const trace = new Trace(new URL("../traces/run.jsonl", import.meta.url).pathname);
-const rl = AUTO || DENY ? null : createInterface({ input: stdin, output: stdout });
+const rl = AUTO || DENY ? null : createInterface({ input: stdin, output: stdout, terminal: false });
 
 const policy: Policy = {
   maxSteps: 100,
@@ -23,7 +23,9 @@ const policy: Policy = {
     if (AUTO) return true;
     if (DENY) return false;
     console.log(`\n${tag("  needs a person", c.amber)}  step ${step}  ${c.bold}${call.tool}${c.off} ${JSON.stringify(call.args)}`);
-    const a = (await rl!.question("  approve? [y/N] ")).trim().toLowerCase();
+    let a = "";
+    try { a = (await rl!.question("  approve? [y/N] ")).trim().toLowerCase(); } catch { a = ""; } // stdin closed: treat as no
+    console.log(a === "y" || a === "yes" ? `  ${tag("y", c.green)}` : `  ${tag("n", c.red)}`);
     return a === "y" || a === "yes";
   },
 };
