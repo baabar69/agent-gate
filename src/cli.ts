@@ -49,7 +49,7 @@ for (let step = 1; step <= policy.maxSteps; step++) {
   } else if (verdict.decision === "denied") {
     memory.push(`denied:${call.tool}`);
     console.log(line + tag("✕ denied by person", c.red));
-  } else {
+  } else if (verdict.decision === "blocked") {
     memory.push(`blocked:${call.tool}`);
     console.log(line + tag(`■ blocked by policy: ${verdict.reason}`, c.red));
   }
