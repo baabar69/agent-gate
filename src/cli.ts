@@ -34,7 +34,8 @@ const policy: Policy = {
     if (DENY) return false;
     console.log(`\n${tag("  needs a person", c.amber)}  step ${step}  ${c.bold}${call.tool}${c.off} ${JSON.stringify(call.args)}`);
     const a = (await ask("  approve? [y/N] ")).trim().toLowerCase();
-    console.log(a === "y" || a === "yes" ? `  ${tag("y", c.green)}` : `  ${tag("n", c.red)}`);
+    // A terminal already shows what the person typed; piped answers are invisible, so print them.
+    if (!stdin.isTTY) console.log(a === "y" || a === "yes" ? `  ${tag("y", c.green)}` : `  ${tag("n", c.red)}`);
     return a === "y" || a === "yes";
   },
 };
